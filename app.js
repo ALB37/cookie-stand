@@ -114,7 +114,7 @@ function makeTotals() {
   var trEl = document.createElement('tr');
 
   var thEl = document.createElement('th');
-  thEl.textContent = 'All Stores Hourly Totals';
+  thEl.textContent = 'All Stores Totals';
   trEl.appendChild(thEl);
 
   for (var i in hours) {
