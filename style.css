@@ -1,0 +1,42 @@
+* {
+  text-align: center;
+  background-color: salmon;
+}
+
+h1 {
+  font-family: 'Annie Use Your Telescope';
+  font-size: 56px;
+}
+
+img {
+  display: block;
+  margin: 0px auto;
+}
+
+div {
+  display: inline-block;
+  background-color: black;
+  width: 33%;
+  color: white;
+}
+
+p, h2 {
+  background-color: black;
+}
+
+h2 {
+  font-family: Arial;
+}
+
+ul {
+  background-color: black;
+}
+
+li {
+  display: inline;
+  margin: 50px;
+  list-style-type: none;
+  font-family: Arial;
+  color: lightgray;
+  background-color: inherit;
+}
