@@ -3,8 +3,10 @@
 var hours = ['6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm'];
 var allStores = [];
 var storeTable = document.getElementById('store');
+var newCookieStore = document.getElementById('new-store');
 var allStoreTotals = [];
 var totalTurtle = 0;
+
 
 
 function Store(name, minCust, maxCust, avgCookieSales){
@@ -100,6 +102,7 @@ function columnSum(){
 }
 
 function totalTotalSum(){
+  totalTurtle = 0;
   for (var i in allStoreTotals){
     totalTurtle += allStoreTotals[i];
   }
@@ -107,6 +110,7 @@ function totalTotalSum(){
 
 function makeTotalsRender() {
   var trEl = document.createElement('tr');
+  trEl.setAttribute('id', 'footer');
 
   var thEl = document.createElement('th');
   thEl.textContent = 'All Stores Totals';
@@ -125,6 +129,36 @@ function makeTotalsRender() {
   storeTable.appendChild(trEl);
 }
 
+function handleNewStoreSubmit(event){
+  allStoreTotals = [];
+  event.preventDefault();
+  var footerRow = document.getElementById('footer');
+  if (!event.target.getStoreName.value || !event.target.getMinCusts.value || !event.target.getMaxCusts.value || !event.target.getAvgSales.value ) {
+    return alert('Please fill in all fields!');
+  }
+  var newStoreName = event.target.getStoreName.value;
+  var newMinCusts = parseInt(event.target.getMinCusts.value);
+  var newMaxCusts = parseInt(event.target.getMaxCusts.value);
+  var newAvgSales = parseInt(event.target.getAvgSales.value);
+  new Store(newStoreName, newMinCusts, newMaxCusts, newAvgSales);
+
+  event.target.getStoreName.value = null;
+  event.target.getMinCusts.value = null;
+  event.target.getMaxCusts.value = null;
+  event.target.getAvgSales.value = null;
+
+  storeTable.removeChild(footerRow);
+
+  allStores[allStores.length - 1].hourlyTrans();
+  allStores[allStores.length - 1].dailyTrans();
+  allStores[allStores.length - 1].render();
+
+  columnSum();
+  totalTotalSum();
+  makeTotalsRender();
+}
+
+newCookieStore.addEventListener('submit', handleNewStoreSubmit);
 
 makeHeaderRow();
 
