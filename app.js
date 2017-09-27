@@ -7,14 +7,13 @@ var allStoreTotals = [];
 var totalTurtle = 0;
 
 
-function Store(name, minCust, maxCust, avgCookieSales, el){
+function Store(name, minCust, maxCust, avgCookieSales){
   this.name = name;
   this.minCust = minCust;
   this.maxCust = maxCust;
   this.avgCookieSales = avgCookieSales;
   this.dailySales = 0;
   this.hourlySales = [];
-  this.el = el;
   allStores.push(this);
 }
 
@@ -56,11 +55,11 @@ Store.prototype.render = function(){
   storeTable.appendChild(trEl);
 };
 
-new Store('1st and Pike', 23, 65, 6.3, 'pike');
-new Store('SeaTac Airport', 3, 24, 1.2, 'seaTac');
-new Store('Seattle Center', 11, 38, 3.7, 'seaCntr');
-new Store('Capitol Hill', 20, 38, 2.3, 'capHill');
-new Store('Alki', 2, 16, 4.6, 'alki');
+new Store('1st and Pike', 23, 65, 6.3);
+new Store('SeaTac Airport', 3, 24, 1.2);
+new Store('Seattle Center', 11, 38, 3.7);
+new Store('Capitol Hill', 20, 38, 2.3);
+new Store('Alki', 2, 16, 4.6);
 
 function makeHeaderRow() {
   var trEl = document.createElement('tr');
