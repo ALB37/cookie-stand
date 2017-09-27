@@ -8,7 +8,6 @@ var allStoreTotals = [];
 var totalTurtle = 0;
 
 
-
 function Store(name, minCust, maxCust, avgCookieSales){
   this.name = name;
   this.minCust = minCust;
@@ -62,6 +61,7 @@ new Store('SeaTac Airport', 3, 24, 1.2);
 new Store('Seattle Center', 11, 38, 3.7);
 new Store('Capitol Hill', 20, 38, 2.3);
 new Store('Alki', 2, 16, 4.6);
+
 
 function makeHeaderRow() {
   var trEl = document.createElement('tr');
@@ -136,6 +136,7 @@ function handleNewStoreSubmit(event){
   if (!event.target.getStoreName.value || !event.target.getMinCusts.value || !event.target.getMaxCusts.value || !event.target.getAvgSales.value ) {
     return alert('Please fill in all fields!');
   }
+
   var newStoreName = event.target.getStoreName.value;
   var newMinCusts = parseInt(event.target.getMinCusts.value);
   var newMaxCusts = parseInt(event.target.getMaxCusts.value);
@@ -157,6 +158,7 @@ function handleNewStoreSubmit(event){
   totalTotalSum();
   makeTotalsRender();
 }
+
 
 newCookieStore.addEventListener('submit', handleNewStoreSubmit);
 
