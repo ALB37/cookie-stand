@@ -1,33 +1,11 @@
 'use strict';
 
 var hours = ['6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm'];
-
-
 var allStores = [];
-
 var storeTable = document.getElementById('store');
+var allStoreTotals = [];
+var totalTurtle = 0;
 
-function makeHeaderRow() {
-  var trEl = document.createElement('tr');
-
-  var thEl = document.createElement('th');
-  thEl.textContent = 'Store';
-  trEl.appendChild(thEl);
-
-  for (var i in hours) {
-    thEl = document.createElement('th');
-    thEl.textContent = hours[i];
-    trEl.appendChild(thEl);
-  }
-
-  thEl = document.createElement('th');
-  thEl.textContent = 'Daily Total';
-  trEl.appendChild(thEl);
-
-  storeTable.appendChild(trEl);
-}
-
-makeHeaderRow();
 
 function Store(name, minCust, maxCust, avgCookieSales, el){
   this.name = name;
@@ -45,7 +23,7 @@ Store.prototype.hourlyCusts = function(){
 };
 
 Store.prototype.hourlyTrans = function(){
-  for (var i in hours){
+  for (var i = 0; i < hours.length; i++){
     var numCust = this.hourlyCusts();
     this.hourlySales.push(Math.round(numCust * this.avgCookieSales));
   }
@@ -83,19 +61,37 @@ new Store('SeaTac Airport', 3, 24, 1.2, 'seaTac');
 new Store('Seattle Center', 11, 38, 3.7, 'seaCntr');
 new Store('Capitol Hill', 20, 38, 2.3, 'capHill');
 new Store('Alki', 2, 16, 4.6, 'alki');
-console.log(allStores);
 
-for (var i in allStores){
-  allStores[i].hourlyTrans();
-  allStores[i].dailyTrans();
-  allStores[i].render();
+function makeHeaderRow() {
+  var trEl = document.createElement('tr');
+
+  var thEl = document.createElement('th');
+  thEl.textContent = 'Store';
+  trEl.appendChild(thEl);
+
+  for (var i in hours) {
+    thEl = document.createElement('th');
+    thEl.textContent = hours[i];
+    trEl.appendChild(thEl);
+  }
+
+  thEl = document.createElement('th');
+  thEl.textContent = 'Daily Total';
+  trEl.appendChild(thEl);
+
+  storeTable.appendChild(trEl);
 }
 
-var allStoreTotals = [];
-var totalTurtle = 0;
+function dataRowCall(){
+  for (var i in allStores){
+    allStores[i].hourlyTrans();
+    allStores[i].dailyTrans();
+    allStores[i].render();
+  }
+}
 
 function columnSum(){
-  for (i = 0; i < hours.length; i++){
+  for (var i = 0; i < hours.length; i++){
     var storeTotal = 0;
     for (var j = 0; j < allStores.length; j++){
       storeTotal += allStores[j].hourlySales[i];
@@ -104,13 +100,13 @@ function columnSum(){
   }
 }
 
-columnSum();
-
-for (var k in allStoreTotals){
-  totalTurtle += allStoreTotals[k];
+function totalTotalSum(){
+  for (var i in allStoreTotals){
+    totalTurtle += allStoreTotals[i];
+  }
 }
 
-function makeTotals() {
+function makeTotalsRender() {
   var trEl = document.createElement('tr');
 
   var thEl = document.createElement('th');
@@ -130,4 +126,13 @@ function makeTotals() {
   storeTable.appendChild(trEl);
 }
 
-makeTotals();
+
+makeHeaderRow();
+
+dataRowCall();
+
+columnSum();
+
+totalTotalSum();
+
+makeTotalsRender();
