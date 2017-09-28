@@ -3,9 +3,15 @@
   background-color: salmon;
 }
 
+body {
+  width: 960px;
+  margin: 0 auto;
+}
+
 h1 {
   font-family: 'Annie Use Your Telescope';
   font-size: 56px;
+  margin: 0;
 }
 
 img {
@@ -13,10 +19,27 @@ img {
   margin: 0px auto;
 }
 
-div {
+.main-image>img {
+  margin-bottom: 30px;
+}
+
+li>img{
+  width: 92px;
   display: inline-block;
   background-color: black;
-  width: 33%;
+}
+
+nav li {
+  font-size: 24px;
+  width: 92px;
+}
+
+.column {
+  float: left;
+  background-color: black;
+  width: 300px;
+  height: 150px;
+  margin: 10px;
   color: white;
 }
 
@@ -37,6 +60,11 @@ li {
   margin: 50px;
   list-style-type: none;
   font-family: Arial;
-  color: lightgray;
   background-color: inherit;
+}
+
+a:link, a:visited {
+  color: white;
+  background-color: black;
+  text-decoration: none;
 }
