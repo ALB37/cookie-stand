@@ -36,7 +36,6 @@ Store.prototype.dailyTrans = function(){
 };
 
 Store.prototype.render = function(){
-
   var trEl = document.createElement('tr');
 
   var thEl = document.createElement('th');
@@ -129,31 +128,41 @@ function makeTotalsRender() {
   storeTable.appendChild(trEl);
 }
 
+function renderAllTable(){
+  var counter = 0;
+  for (var i = 0; i < allStores.length; i++){
+    if (event.target.getStoreName.value === allStores[i].name){
+      allStores[i].minCust = parseInt(event.target.getMinCusts.value);
+      allStores[i].maxCust = parseInt(event.target.getMaxCusts.value);
+      allStores[i].avgCookieSales = parseInt(event.target.getAvgSales.value);
+      allStores[i].dailySales = 0;
+      allStores[i].hourlySales = [];
+      allStores[i].hourlyTrans();
+      allStores[i].dailyTrans();
+      counter++;
+    }
+  }
+  if (counter === 0){
+    new Store(event.target.getStoreName.value, parseInt(event.target.getMinCusts.value), parseInt(event.target.getMaxCusts.value), parseInt(event.target.getAvgSales.value));
+    allStores[allStores.length - 1].hourlyTrans();
+    allStores[allStores.length - 1].dailyTrans();
+  }
+
+  for (var j = 0; j < allStores.length; j++){
+    allStores[j].render();
+  }
+}
+
 function handleNewStoreSubmit(event){
-  allStoreTotals = [];
   event.preventDefault();
-  var footerRow = document.getElementById('footer');
+  allStoreTotals = [];
   if (!event.target.getStoreName.value || !event.target.getMinCusts.value || !event.target.getMaxCusts.value || !event.target.getAvgSales.value ) {
     return alert('Please fill in all fields!');
   }
+  storeTable.innerHTML = '';
 
-  var newStoreName = event.target.getStoreName.value;
-  var newMinCusts = parseInt(event.target.getMinCusts.value);
-  var newMaxCusts = parseInt(event.target.getMaxCusts.value);
-  var newAvgSales = parseInt(event.target.getAvgSales.value);
-  new Store(newStoreName, newMinCusts, newMaxCusts, newAvgSales);
-
-  event.target.getStoreName.value = null;
-  event.target.getMinCusts.value = null;
-  event.target.getMaxCusts.value = null;
-  event.target.getAvgSales.value = null;
-
-  storeTable.removeChild(footerRow);
-
-  allStores[allStores.length - 1].hourlyTrans();
-  allStores[allStores.length - 1].dailyTrans();
-  allStores[allStores.length - 1].render();
-
+  makeHeaderRow();
+  renderAllTable();
   columnSum();
   totalTotalSum();
   makeTotalsRender();
