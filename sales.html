@@ -8,9 +8,31 @@
   <body>
     <h1>Salmon Cookies Sales</h1>
 
+    <form id="new-store">
+      <fieldset>
+
+        <legend>New Store Input</legend>
+
+        <label for="getStoreName">Store Name: </label>
+        <input name="getStoreName" type="text" />
+
+        <label for="getMinCusts">Minimum Customers per Hour: </label>
+        <input name="getMinCusts" type="number"/>
+
+        <label for="getMaxCusts">Maximum Customers per Hour: </label>
+        <input name="getMaxCusts" type="number"/>
+
+        <label for="getAvgSales">Average Cookies per Sale: </label>
+        <input name="getAvgSales" type="number" step="any"/>
+
+        <button type="submit">Create New Location</button>
+
+      </fieldset>
+    </form>
+
     <table id="store">
     </table>
-    
+
     <script src="app.js"></script>
   </body>
 </html>
