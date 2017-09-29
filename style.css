@@ -60,11 +60,25 @@ main p {
 
 p, h2 {
   background-color: black;
+  color: white;
 }
 
 h2 {
   font-family: Arial;
   color: white;
+}
+
+#about {
+  background-color: salmon;
+  height: auto;
+}
+
+#about>img {
+  width: 540px;
+}
+
+#about>p {
+  background-color: inherit;
 }
 
 
@@ -89,4 +103,23 @@ a:link, a:visited {
 h3>a:link, h3>a:visited {
   color: black;
   background-color: salmon;
+}
+
+table {
+	border: 10px solid black;
+  margin: 0 auto;
+}
+
+td {
+	padding: 10px;
+  border: 1px solid black;
+  background: salmon;
+  padding: 10px;
+  font-size: 12px;
+}
+
+th {
+	background-color: salmon;
+	color: black;
+  border: 1px solid black;
 }
