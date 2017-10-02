@@ -9,6 +9,8 @@ Store.salesTable = document.getElementById('store');
 Store.newCookieStore = document.getElementById('new-store');
 Store.allStoreTotals = [];
 Store.totalTurtle = 0;
+Store.allStoreEmployees = [];
+Store.totalDailyLabor = 0;
 
 
 // Store Object Constructor //
@@ -19,7 +21,9 @@ function Store(name, minCust, maxCust, avgCookieSales){
   this.maxCust = maxCust;
   this.avgCookieSales = avgCookieSales;
   this.dailySales = 0;
+  this.dailyEmployees = 0;
   this.hourlySales = [];
+  this.hourlyEmployees = [];
   Store.all.push(this);
 }
 
@@ -38,12 +42,20 @@ Store.prototype.hourlyTrans = function(){
   }
 };
 
+Store.prototype.hourlyLaborReq = function() {
+  for (var i = 0; i < this.hourlySales.length; i++){
+    this.hourlyEmployees.push(Math.ceil(this.hourlySales[i] / 20));
+  }
+};
+
 // Calculate daily transactions per location
 Store.prototype.dailyTrans = function(){
   for (var i in this.hourlySales){
     this.dailySales += this.hourlySales[i];
   }
 };
+
+
 
 // Render store data into table
 Store.prototype.render = function(){
@@ -172,9 +184,13 @@ Store.renderAllTable = function(){
       Store.all[i].avgCookieSales = parseInt(newAvgSales);
       Store.all[i].dailySales = 0;
       Store.all[i].hourlySales = [];
+      Store.all[i].dailyEmployees = 0;
+      Store.all[i].hourlyEmployees = [];
       // Call functions to calculate new data based on new numbers entered
       Store.all[i].hourlyTrans();
       Store.all[i].dailyTrans();
+      Store.all[i].hourlyLaborReq();
+      Store.all[i].dailyEmployeeReq();
       // Skip next if statement if this conditional is triggered
       counter++;
     }
@@ -185,10 +201,13 @@ Store.renderAllTable = function(){
     // Calculate data only for the newest Store object (i.e. the one just instantiated)
     Store.all[Store.all.length - 1].hourlyTrans();
     Store.all[Store.all.length - 1].dailyTrans();
+    Store.all[Store.all.length - 1].hourlyLaborReq();
+    Store.all[Store.all.length - 1].dailyEmployeeReq();
   }
   // Render the table data for the Store objects
   for (var j = 0; j < Store.all.length; j++){
     Store.all[j].render();
+    Store.all[j].laborRender();
   }
 };
 
@@ -198,17 +217,21 @@ Store.handleNewStoreSubmit = function(event){
   event.preventDefault();
   // Reset the sum of all hourly total sales (a Store will be added or changed, so this value will change)
   Store.allStoreTotals = [];
+  Store.allStoreEmployees = [];
   // Input validation
   if (!event.target.getStoreName.value || !event.target.getMinCusts.value || !event.target.getMaxCusts.value || !event.target.getAvgSales.value ) {
     return alert('Please fill in all fields!');
   }
   // Wipe the table data clean
   Store.salesTable.innerHTML = '';
+  Store.laborTable.innerHTML = '';
 
   // Re-render the table (unchanged data will remain in memory)
   Store.makeHeaderRow();
+  Store.laborHeaderRow();
   Store.renderAllTable();
   Store.callFooterFunctions();
+  Store.laborFooterFunctions();
 };
 
 
@@ -222,3 +245,110 @@ Store.makeHeaderRow();
 Store.dataRowCall();
 
 Store.callFooterFunctions();
+
+
+Store.laborTable = document.getElementById('staff');
+
+Store.laborHeaderRow = function() {
+  var trEl = document.createElement('tr');
+
+  var thEl = document.createElement('th');
+  thEl.textContent = 'Store';
+  trEl.appendChild(thEl);
+
+  for (var i in Store.hours) {
+    thEl = document.createElement('th');
+    thEl.textContent = Store.hours[i];
+    trEl.appendChild(thEl);
+  }
+
+  thEl = document.createElement('th');
+  thEl.textContent = 'Total Employee Hours';
+  trEl.appendChild(thEl);
+
+  Store.laborTable.appendChild(trEl);
+};
+
+Store.laborHeaderRow();
+
+Store.prototype.laborRender = function(){
+  var trEl = document.createElement('tr');
+
+  var thEl = document.createElement('th');
+  thEl.textContent = this.name;
+  trEl.appendChild(thEl);
+
+  for (var i in this.hourlySales) {
+    var tdEl = document.createElement('td');
+    tdEl.textContent = this.hourlyEmployees[i];
+    trEl.appendChild(tdEl);
+  }
+
+  thEl = document.createElement('th');
+  thEl.textContent = this.dailyEmployees;
+  trEl.appendChild(thEl);
+
+  Store.laborTable.appendChild(trEl);
+};
+
+Store.prototype.dailyEmployeeReq = function(){
+  for (var i in this.hourlyEmployees){
+    this.dailyEmployees += this.hourlyEmployees[i];
+  }
+};
+
+Store.laborRowCall = function(){
+  for (var i in Store.all){
+    Store.all[i].hourlyLaborReq();
+    Store.all[i].dailyEmployeeReq();
+    Store.all[i].laborRender();
+  }
+};
+
+Store.laborRowCall();
+
+Store.laborColumnSum = function(){
+  for (var i = 0; i < Store.hours.length; i++){
+    var storeTotal = 0;
+    for (var j = 0; j < Store.all.length; j++){
+      storeTotal += Store.all[j].hourlyEmployees[i];
+    }
+    Store.allStoreEmployees.push(storeTotal);
+  }
+};
+
+Store.totalLaborSum = function(){
+  Store.totalDailyLabor = 0;
+  for (var i in Store.allStoreEmployees){
+    Store.totalDailyLabor += Store.allStoreEmployees[i];
+  }
+};
+
+Store.totalsLaborRender = function() {
+  var trEl = document.createElement('tr');
+  trEl.setAttribute('id', 'footer');
+
+  var thEl = document.createElement('th');
+  thEl.textContent = 'All Stores Totals';
+  trEl.appendChild(thEl);
+
+  for (var i in Store.hours) {
+    thEl = document.createElement('th');
+    thEl.textContent = Store.allStoreEmployees[i];
+    trEl.appendChild(thEl);
+  }
+
+  thEl = document.createElement('th');
+  thEl.textContent = Store.totalDailyLabor;
+  trEl.appendChild(thEl);
+
+  Store.laborTable.appendChild(trEl);
+};
+
+Store.laborFooterFunctions = function() {
+  Store.laborColumnSum();
+  Store.totalLaborSum();
+  Store.totalsLaborRender();
+};
+
+Store.laborFooterFunctions();
