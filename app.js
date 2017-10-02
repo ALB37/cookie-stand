@@ -3,15 +3,18 @@
 
 // // Global Variables // //
 
-var hours = ['6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm'];
-var allStores = [];
-var storeTable = document.getElementById('store');
-var newCookieStore = document.getElementById('new-store');
-var allStoreTotals = [];
-var totalTurtle = 0;
+Store.hours = ['6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm'];
+Store.all = [];
+Store.salesTable = document.getElementById('store');
+Store.laborTable = document.getElementById('staff');
+Store.newCookieStore = document.getElementById('new-store');
+Store.allStoreTotals = [];
+Store.totalTurtle = 0;
+Store.allStoresHourlyLabor = [];
+Store.totalDailyLabor = 0;
 
 
-// Store Object Constructor //
+// // Store Object Constructor // //
 
 function Store(name, minCust, maxCust, avgCookieSales){
   this.name = name;
@@ -19,11 +22,21 @@ function Store(name, minCust, maxCust, avgCookieSales){
   this.maxCust = maxCust;
   this.avgCookieSales = avgCookieSales;
   this.dailySales = 0;
+  this.dailyEmployees = 0;
   this.hourlySales = [];
-  allStores.push(this);
+  this.hourlyEmployees = [];
+  Store.all.push(this);
 }
 
-// Store Object Prototypes //
+// Instantiate Store objects
+new Store('1st and Pike', 23, 65, 6.3);
+new Store('SeaTac Airport', 3, 24, 1.2);
+new Store('Seattle Center', 11, 38, 3.7);
+new Store('Capitol Hill', 20, 38, 2.3);
+new Store('Alki', 2, 16, 4.6);
+
+
+// // Functions/Methods // //
 
 // Random-number generator based on store object data
 Store.prototype.hourlyCusts = function(){
@@ -32,9 +45,16 @@ Store.prototype.hourlyCusts = function(){
 
 // Calculate hourly transactions
 Store.prototype.hourlyTrans = function(){
-  for (var i = 0; i < hours.length; i++){
+  for (var i = 0; i < Store.hours.length; i++){
     var numCust = this.hourlyCusts();
     this.hourlySales.push(Math.round(numCust * this.avgCookieSales));
+  }
+};
+
+// Calculate hourly labor requirements based on the assumption that for every 20 cookies sold, one employee is needed
+Store.prototype.hourlyLaborReq = function() {
+  for (var i = 0; i < this.hourlySales.length; i++){
+    this.hourlyEmployees.push(Math.ceil(this.hourlySales[i] / 20));
   }
 };
 
@@ -45,117 +65,158 @@ Store.prototype.dailyTrans = function(){
   }
 };
 
+// Calculate daily labor needed per location
+Store.prototype.dailyEmployeeReq = function(){
+  for (var i in this.hourlyEmployees){
+    this.dailyEmployees += this.hourlyEmployees[i];
+  }
+};
+
+// Helper function to shorten render methods
+Store.newElement = function(type, content, parent) {
+  var newEl = document.createElement(type);
+  newEl.textContent = content;
+  parent.appendChild(newEl);
+};
+
+// Render sales table header row
+Store.makeHeaderRow = function() {
+  var trEl = document.createElement('tr');
+  Store.newElement('th', 'Store', trEl);
+  for (var i in Store.hours) {
+    Store.newElement('th', Store.hours[i], trEl);
+  }
+  Store.newElement('th', 'Daily Cookies Sold', trEl);
+  Store.salesTable.appendChild(trEl);
+};
+
+// Render labor header row
+Store.laborHeaderRow = function() {
+  var trEl = document.createElement('tr');
+  Store.newElement('th', 'Store', trEl);
+  for (var i in Store.hours) {
+    Store.newElement('th', Store.hours[i], trEl);
+  }
+  Store.newElement('th', 'Total Employee Hours', trEl);
+  Store.laborTable.appendChild(trEl);
+};
+
 // Render store data into table
 Store.prototype.render = function(){
   var trEl = document.createElement('tr');
-
-  var thEl = document.createElement('th');
-  thEl.textContent = this.name;
-  trEl.appendChild(thEl);
-
+  Store.newElement('th', this.name, trEl);
   for (var i in this.hourlySales) {
-    var tdEl = document.createElement('td');
-    tdEl.textContent = this.hourlySales[i] + ' cookies';
-    trEl.appendChild(tdEl);
+    Store.newElement('td', this.hourlySales[i], trEl);
   }
-
-  thEl = document.createElement('th');
-  thEl.textContent = this.dailySales;
-  trEl.appendChild(thEl);
-
-  storeTable.appendChild(trEl);
+  Store.newElement('th', this.dailySales, trEl);
+  Store.salesTable.appendChild(trEl);
 };
 
-// Instantiate Store objects
-new Store('1st and Pike', 23, 65, 6.3);
-new Store('SeaTac Airport', 3, 24, 1.2);
-new Store('Seattle Center', 11, 38, 3.7);
-new Store('Capitol Hill', 20, 38, 2.3);
-new Store('Alki', 2, 16, 4.6);
-
-
-// // Functions: // //
-
-// Render table header row
-function makeHeaderRow() {
+// Render labor data into table
+Store.prototype.laborRender = function(){
   var trEl = document.createElement('tr');
-
-  var thEl = document.createElement('th');
-  thEl.textContent = 'Store';
-  trEl.appendChild(thEl);
-
-  for (var i in hours) {
-    thEl = document.createElement('th');
-    thEl.textContent = hours[i];
-    trEl.appendChild(thEl);
+  Store.newElement('th', this.name, trEl);
+  for (var i in this.hourlySales) {
+    Store.newElement('td', this.hourlyEmployees[i], trEl);
   }
+  Store.newElement('th', this.dailyEmployees, trEl);
+  Store.laborTable.appendChild(trEl);
+};
 
-  thEl = document.createElement('th');
-  thEl.textContent = 'Daily Total';
-  trEl.appendChild(thEl);
-
-  storeTable.appendChild(trEl);
-}
-
-// Generate and render the data for each Store object
-function dataRowCall(){
-  for (var i in allStores){
-    allStores[i].hourlyTrans();
-    allStores[i].dailyTrans();
-    allStores[i].render();
+// Generate and render the sales data for each Store
+Store.dataRowCall = function(){
+  for (var i in Store.all){
+    Store.all[i].hourlyTrans();
+    Store.all[i].dailyTrans();
+    Store.all[i].render();
   }
-}
+};
+
+// Generate and render the labor data for each Store
+Store.laborRowCall = function(){
+  for (var i in Store.all){
+    Store.all[i].hourlyLaborReq();
+    Store.all[i].dailyEmployeeReq();
+    Store.all[i].laborRender();
+  }
+};
 
 // Calculate the total sales for all location hour by hour
-function columnSum(){
-  for (var i = 0; i < hours.length; i++){
+Store.columnSum = function(){
+  for (var i = 0; i < Store.hours.length; i++){
     var storeTotal = 0;
-    for (var j = 0; j < allStores.length; j++){
-      storeTotal += allStores[j].hourlySales[i];
+    for (var j = 0; j < Store.all.length; j++){
+      storeTotal += Store.all[j].hourlySales[i];
     }
-    allStoreTotals.push(storeTotal);
+    Store.allStoreTotals.push(storeTotal);
   }
-}
+};
 
-// Calculate total daily sum of all locations
-function totalTotalSum(){
-  totalTurtle = 0;
-  for (var i in allStoreTotals){
-    totalTurtle += allStoreTotals[i];
+// Calculate the total labor needed for all locations hour by hour
+Store.laborColumnSum = function(){
+  for (var i = 0; i < Store.hours.length; i++){
+    var storeTotal = 0;
+    for (var j = 0; j < Store.all.length; j++){
+      storeTotal += Store.all[j].hourlyEmployees[i];
+    }
+    Store.allStoresHourlyLabor.push(storeTotal);
   }
-}
+};
 
-// Render table footer row
-function makeTotalsRender() {
+// Calculate total daily sales across all locations
+Store.totalTotalSum = function(){
+  Store.totalTurtle = 0;
+  for (var i in Store.allStoreTotals){
+    Store.totalTurtle += Store.allStoreTotals[i];
+  }
+};
+
+// Calculate the total daily labor needed across all locations
+Store.totalLaborSum = function(){
+  Store.totalDailyLabor = 0;
+  for (var i in Store.allStoresHourlyLabor){
+    Store.totalDailyLabor += Store.allStoresHourlyLabor[i];
+  }
+};
+
+// Render sales table footer row
+Store.makeTotalsRender = function() {
   var trEl = document.createElement('tr');
-  trEl.setAttribute('id', 'footer');
-
-  var thEl = document.createElement('th');
-  thEl.textContent = 'All Stores Totals';
-  trEl.appendChild(thEl);
-
-  for (var i in hours) {
-    thEl = document.createElement('th');
-    thEl.textContent = allStoreTotals[i];
-    trEl.appendChild(thEl);
+  Store.newElement('th', 'All Stores Totals', trEl);
+  for (var i in Store.hours) {
+    Store.newElement('th', Store.allStoreTotals[i], trEl);
   }
+  Store.newElement('th', Store.totalTurtle, trEl);
+  Store.salesTable.appendChild(trEl);
+};
 
-  thEl = document.createElement('th');
-  thEl.textContent = totalTurtle;
-  trEl.appendChild(thEl);
+// Render the labor table footer row
+Store.totalsLaborRender = function() {
+  var trEl = document.createElement('tr');
+  Store.newElement('th', 'All Stores Totals', trEl);
+  for (var i in Store.hours) {
+    Store.newElement('th', Store.allStoresHourlyLabor[i], trEl);
+  }
+  Store.newElement('th', Store.totalDailyLabor, trEl);
+  Store.laborTable.appendChild(trEl);
+};
 
-  storeTable.appendChild(trEl);
-}
+// Call all three functions related to calculating and rendering the sales footer row simultaneosly
+Store.callFooterFunctions = function() {
+  Store.columnSum();
+  Store.totalTotalSum();
+  Store.makeTotalsRender();
+};
 
-// Call all three functions related to calculating and rendering the final row simultaneosly
-function callFooterFunctions() {
-  columnSum();
-  totalTotalSum();
-  makeTotalsRender();
-}
+// Call all three functions related to calculating and rendering the labor footer row simultaneosly
+Store.laborFooterFunctions = function() {
+  Store.laborColumnSum();
+  Store.totalLaborSum();
+  Store.totalsLaborRender();
+};
 
-// Re-renders all of the Store data keeping old data unchanged and inserting new data related to the user input
-function renderAllTable(){
+// Re-renders all of the sales and labor data keeping old data unchanged and inserting new data related to the user input
+Store.renderAllTable = function(){
   // Declare text-box data as variables
   var newStoreName = event.target.getStoreName.value;
   var newMinCusts = event.target.getMinCusts.value;
@@ -164,17 +225,22 @@ function renderAllTable(){
   // Variable to prevent duplicate Store object when editing existing data
   var counter = 0;
   // Checks the name entered in text-box against existing Store objects
-  for (var i = 0; i < allStores.length; i++){
-    if (newStoreName === allStores[i].name){
+  for (var i = 0; i < Store.all.length; i++){
+    if (newStoreName.toLowerCase() === Store.all[i].name.toLowerCase()){
       // Edit data of existing Store object
-      allStores[i].minCust = parseInt(newMinCusts);
-      allStores[i].maxCust = parseInt(newMaxCusts);
-      allStores[i].avgCookieSales = parseInt(newAvgSales);
-      allStores[i].dailySales = 0;
-      allStores[i].hourlySales = [];
+      Store.all[i].minCust = parseInt(newMinCusts);
+      Store.all[i].maxCust = parseInt(newMaxCusts);
+      Store.all[i].avgCookieSales = parseInt(newAvgSales);
+      // Reset data to be re-calculated
+      Store.all[i].dailySales = 0;
+      Store.all[i].hourlySales = [];
+      Store.all[i].dailyEmployees = 0;
+      Store.all[i].hourlyEmployees = [];
       // Call functions to calculate new data based on new numbers entered
-      allStores[i].hourlyTrans();
-      allStores[i].dailyTrans();
+      Store.all[i].hourlyTrans();
+      Store.all[i].dailyTrans();
+      Store.all[i].hourlyLaborReq();
+      Store.all[i].dailyEmployeeReq();
       // Skip next if statement if this conditional is triggered
       counter++;
     }
@@ -183,42 +249,66 @@ function renderAllTable(){
   if (counter === 0){
     new Store(newStoreName, parseInt(newMinCusts), parseInt(newMaxCusts), parseInt(newAvgSales));
     // Calculate data only for the newest Store object (i.e. the one just instantiated)
-    allStores[allStores.length - 1].hourlyTrans();
-    allStores[allStores.length - 1].dailyTrans();
+    Store.all[Store.all.length - 1].hourlyTrans();
+    Store.all[Store.all.length - 1].dailyTrans();
+    Store.all[Store.all.length - 1].hourlyLaborReq();
+    Store.all[Store.all.length - 1].dailyEmployeeReq();
   }
   // Render the table data for the Store objects
-  for (var j = 0; j < allStores.length; j++){
-    allStores[j].render();
+  for (var j = 0; j < Store.all.length; j++){
+    Store.all[j].render();
+    Store.all[j].laborRender();
   }
-}
+};
 
 // Function for handling the event of pressing the submit button
-function handleNewStoreSubmit(event){
+Store.handleNewStoreSubmit = function(event){
   // Prevent the page from reloading
   event.preventDefault();
-  // Reset the sum of all hourly total sales (a Store will be added or changed, so this value will change)
-  allStoreTotals = [];
+  // Declare text-box data as variables
+  var newStoreName = event.target.getStoreName.value;
+  var newMinCusts = event.target.getMinCusts.value;
+  var newMaxCusts = event.target.getMaxCusts.value;
+  var newAvgSales = event.target.getAvgSales.value;
+  // Reset the sum of all hourly total sales/labor (a Store will be added or changed, so this value will change)
+  Store.allStoreTotals = [];
+  Store.allStoresHourlyLabor = [];
   // Input validation
-  if (!event.target.getStoreName.value || !event.target.getMinCusts.value || !event.target.getMaxCusts.value || !event.target.getAvgSales.value ) {
+  if (!newStoreName || !newMinCusts || !newMaxCusts || !newAvgSales ) {
     return alert('Please fill in all fields!');
   }
+
+  if (newMinCusts < 0 || newMaxCusts < 0 || newAvgSales < 0){
+    return alert('Please supply positive numbers only!');
+  }
+
+  if (newMinCusts > newMaxCusts){
+    return alert('Minimum number of customers must be less than or equal to maximum number of customers!');
+  }
+
   // Wipe the table data clean
-  storeTable.innerHTML = '';
+  Store.salesTable.innerHTML = '';
+  Store.laborTable.innerHTML = '';
 
-  // Re-render the table (unchanged data will remain in memory)
-  makeHeaderRow();
-  renderAllTable();
-  callFooterFunctions();
-}
+  // Re-render the tables (unchanged data will remain in memory)
+  Store.makeHeaderRow();
+  Store.laborHeaderRow();
+  Store.renderAllTable();
+  Store.callFooterFunctions();
+  Store.laborFooterFunctions();
+};
 
 
-// // Execution // //
+// // Executable Code // //
 
+// Generate table headers
+Store.makeHeaderRow();
+Store.laborHeaderRow();
+// Generate data rows
+Store.dataRowCall();
+Store.laborRowCall();
+// Generate table footers
+Store.callFooterFunctions();
+Store.laborFooterFunctions();
 // Creates event listener for submit button
-newCookieStore.addEventListener('submit', handleNewStoreSubmit);
-
-makeHeaderRow();
-
-dataRowCall();
-
-callFooterFunctions();
+Store.newCookieStore.addEventListener('submit', Store.handleNewStoreSubmit);
