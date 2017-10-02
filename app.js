@@ -6,6 +6,7 @@
 Store.hours = ['6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm'];
 Store.all = [];
 Store.salesTable = document.getElementById('store');
+Store.laborTable = document.getElementById('staff');
 Store.newCookieStore = document.getElementById('new-store');
 Store.allStoreTotals = [];
 Store.totalTurtle = 0;
@@ -13,7 +14,7 @@ Store.allStoresHourlyLabor = [];
 Store.totalDailyLabor = 0;
 
 
-// Store Object Constructor //
+// // Store Object Constructor // //
 
 function Store(name, minCust, maxCust, avgCookieSales){
   this.name = name;
@@ -27,7 +28,15 @@ function Store(name, minCust, maxCust, avgCookieSales){
   Store.all.push(this);
 }
 
-// Store Object Prototypes //
+// Instantiate Store objects
+new Store('1st and Pike', 23, 65, 6.3);
+new Store('SeaTac Airport', 3, 24, 1.2);
+new Store('Seattle Center', 11, 38, 3.7);
+new Store('Capitol Hill', 20, 38, 2.3);
+new Store('Alki', 2, 16, 4.6);
+
+
+// // Functions/Methods // //
 
 // Random-number generator based on store object data
 Store.prototype.hourlyCusts = function(){
@@ -42,6 +51,7 @@ Store.prototype.hourlyTrans = function(){
   }
 };
 
+// Calculate hourly labor requirements based on the assumption that for every 20 cookies sold, one employee is needed
 Store.prototype.hourlyLaborReq = function() {
   for (var i = 0; i < this.hourlySales.length; i++){
     this.hourlyEmployees.push(Math.ceil(this.hourlySales[i] / 20));
@@ -55,53 +65,79 @@ Store.prototype.dailyTrans = function(){
   }
 };
 
-
-
-// Render store data into table
-Store.prototype.render = function(){
-  var trEl = document.createElement('tr');
-  Store.newElement('th', this.name, trEl);
-  for (var i in this.hourlySales) {
-    Store.newElement('td', this.hourlySales[i] + ' cookies', trEl);
+// Calculate daily labor needed per location
+Store.prototype.dailyEmployeeReq = function(){
+  for (var i in this.hourlyEmployees){
+    this.dailyEmployees += this.hourlyEmployees[i];
   }
-  Store.newElement('th', this.dailySales, trEl);
-  Store.salesTable.appendChild(trEl);
 };
 
-// Instantiate Store objects
-new Store('1st and Pike', 23, 65, 6.3);
-new Store('SeaTac Airport', 3, 24, 1.2);
-new Store('Seattle Center', 11, 38, 3.7);
-new Store('Capitol Hill', 20, 38, 2.3);
-new Store('Alki', 2, 16, 4.6);
-
-
-// // Functions: // //
-
-
+// Helper function to shorten render methods
 Store.newElement = function(type, content, parent) {
   var newEl = document.createElement(type);
   newEl.textContent = content;
   parent.appendChild(newEl);
 };
 
-// Render table header row
+// Render sales table header row
 Store.makeHeaderRow = function() {
   var trEl = document.createElement('tr');
   Store.newElement('th', 'Store', trEl);
   for (var i in Store.hours) {
     Store.newElement('th', Store.hours[i], trEl);
   }
-  Store.newElement('th', 'Daily Total', trEl);
+  Store.newElement('th', 'Daily Cookies Sold', trEl);
   Store.salesTable.appendChild(trEl);
 };
 
-// Generate and render the data for each Store object
+// Render labor header row
+Store.laborHeaderRow = function() {
+  var trEl = document.createElement('tr');
+  Store.newElement('th', 'Store', trEl);
+  for (var i in Store.hours) {
+    Store.newElement('th', Store.hours[i], trEl);
+  }
+  Store.newElement('th', 'Total Employee Hours', trEl);
+  Store.laborTable.appendChild(trEl);
+};
+
+// Render store data into table
+Store.prototype.render = function(){
+  var trEl = document.createElement('tr');
+  Store.newElement('th', this.name, trEl);
+  for (var i in this.hourlySales) {
+    Store.newElement('td', this.hourlySales[i], trEl);
+  }
+  Store.newElement('th', this.dailySales, trEl);
+  Store.salesTable.appendChild(trEl);
+};
+
+// Render labor data into table
+Store.prototype.laborRender = function(){
+  var trEl = document.createElement('tr');
+  Store.newElement('th', this.name, trEl);
+  for (var i in this.hourlySales) {
+    Store.newElement('td', this.hourlyEmployees[i], trEl);
+  }
+  Store.newElement('th', this.dailyEmployees, trEl);
+  Store.laborTable.appendChild(trEl);
+};
+
+// Generate and render the sales data for each Store
 Store.dataRowCall = function(){
   for (var i in Store.all){
     Store.all[i].hourlyTrans();
     Store.all[i].dailyTrans();
     Store.all[i].render();
+  }
+};
+
+// Generate and render the labor data for each Store
+Store.laborRowCall = function(){
+  for (var i in Store.all){
+    Store.all[i].hourlyLaborReq();
+    Store.all[i].dailyEmployeeReq();
+    Store.all[i].laborRender();
   }
 };
 
@@ -116,7 +152,18 @@ Store.columnSum = function(){
   }
 };
 
-// Calculate total daily sum of all locations
+// Calculate the total labor needed for all locations hour by hour
+Store.laborColumnSum = function(){
+  for (var i = 0; i < Store.hours.length; i++){
+    var storeTotal = 0;
+    for (var j = 0; j < Store.all.length; j++){
+      storeTotal += Store.all[j].hourlyEmployees[i];
+    }
+    Store.allStoresHourlyLabor.push(storeTotal);
+  }
+};
+
+// Calculate total daily sales across all locations
 Store.totalTotalSum = function(){
   Store.totalTurtle = 0;
   for (var i in Store.allStoreTotals){
@@ -124,7 +171,15 @@ Store.totalTotalSum = function(){
   }
 };
 
-// Render table footer row
+// Calculate the total daily labor needed across all locations
+Store.totalLaborSum = function(){
+  Store.totalDailyLabor = 0;
+  for (var i in Store.allStoresHourlyLabor){
+    Store.totalDailyLabor += Store.allStoresHourlyLabor[i];
+  }
+};
+
+// Render sales table footer row
 Store.makeTotalsRender = function() {
   var trEl = document.createElement('tr');
   Store.newElement('th', 'All Stores Totals', trEl);
@@ -135,14 +190,32 @@ Store.makeTotalsRender = function() {
   Store.salesTable.appendChild(trEl);
 };
 
-// Call all three functions related to calculating and rendering the final row simultaneosly
+// Render the labor table footer row
+Store.totalsLaborRender = function() {
+  var trEl = document.createElement('tr');
+  Store.newElement('th', 'All Stores Totals', trEl);
+  for (var i in Store.hours) {
+    Store.newElement('th', Store.allStoresHourlyLabor[i], trEl);
+  }
+  Store.newElement('th', Store.totalDailyLabor, trEl);
+  Store.laborTable.appendChild(trEl);
+};
+
+// Call all three functions related to calculating and rendering the sales footer row simultaneosly
 Store.callFooterFunctions = function() {
   Store.columnSum();
   Store.totalTotalSum();
   Store.makeTotalsRender();
 };
 
-// Re-renders all of the Store data keeping old data unchanged and inserting new data related to the user input
+// Call all three functions related to calculating and rendering the labor footer row simultaneosly
+Store.laborFooterFunctions = function() {
+  Store.laborColumnSum();
+  Store.totalLaborSum();
+  Store.totalsLaborRender();
+};
+
+// Re-renders all of the sales and labor data keeping old data unchanged and inserting new data related to the user input
 Store.renderAllTable = function(){
   // Declare text-box data as variables
   var newStoreName = event.target.getStoreName.value;
@@ -203,7 +276,7 @@ Store.handleNewStoreSubmit = function(event){
   Store.salesTable.innerHTML = '';
   Store.laborTable.innerHTML = '';
 
-  // Re-render the table (unchanged data will remain in memory)
+  // Re-render the tables (unchanged data will remain in memory)
   Store.makeHeaderRow();
   Store.laborHeaderRow();
   Store.renderAllTable();
@@ -212,128 +285,16 @@ Store.handleNewStoreSubmit = function(event){
 };
 
 
-// // Execution // //
+// // Executable Code // //
 
+// Generate table headers
+Store.makeHeaderRow();
+Store.laborHeaderRow();
+// Generate data rows
+Store.dataRowCall();
+Store.laborRowCall();
+// Generate table footers
+Store.callFooterFunctions();
+Store.laborFooterFunctions();
 // Creates event listener for submit button
 Store.newCookieStore.addEventListener('submit', Store.handleNewStoreSubmit);
-
-Store.makeHeaderRow();
-
-Store.dataRowCall();
-
-Store.callFooterFunctions();
-
-
-Store.laborTable = document.getElementById('staff');
-
-Store.laborHeaderRow = function() {
-  var trEl = document.createElement('tr');
-
-  // var thEl = document.createElement('th');
-  // thEl.textContent = 'Store';
-  // trEl.appendChild(thEl);
-  Store.newElement('th', 'Store', trEl);
-
-  for (var i in Store.hours) {
-    // thEl = document.createElement('th');
-    // thEl.textContent = Store.hours[i];
-    // trEl.appendChild(thEl);
-    Store.newElement('th', Store.hours[i], trEl);
-  }
-
-  // thEl = document.createElement('th');
-  // thEl.textContent = 'Total Employee Hours';
-  // trEl.appendChild(thEl);
-  Store.newElement('th', 'Total Employee Hours', trEl);
-
-  Store.laborTable.appendChild(trEl);
-};
-
-Store.laborHeaderRow();
-
-Store.prototype.laborRender = function(){
-  var trEl = document.createElement('tr');
-
-  // var thEl = document.createElement('th');
-  // thEl.textContent = this.name;
-  // trEl.appendChild(thEl);
-  Store.newElement('th', this.name, trEl);
-
-  for (var i in this.hourlySales) {
-    // var tdEl = document.createElement('td');
-    // tdEl.textContent = this.hourlyEmployees[i];
-    // trEl.appendChild(tdEl);
-    Store.newElement('td', this.hourlyEmployees[i], trEl);
-  }
-
-  // thEl = document.createElement('th');
-  // thEl.textContent = this.dailyEmployees;
-  // trEl.appendChild(thEl);
-  Store.newElement('th', this.dailyEmployees, trEl);
-
-  Store.laborTable.appendChild(trEl);
-};
-
-Store.prototype.dailyEmployeeReq = function(){
-  for (var i in this.hourlyEmployees){
-    this.dailyEmployees += this.hourlyEmployees[i];
-  }
-};
-
-Store.laborRowCall = function(){
-  for (var i in Store.all){
-    Store.all[i].hourlyLaborReq();
-    Store.all[i].dailyEmployeeReq();
-    Store.all[i].laborRender();
-  }
-};
-
-Store.laborRowCall();
-
-Store.laborColumnSum = function(){
-  for (var i = 0; i < Store.hours.length; i++){
-    var storeTotal = 0;
-    for (var j = 0; j < Store.all.length; j++){
-      storeTotal += Store.all[j].hourlyEmployees[i];
-    }
-    Store.allStoresHourlyLabor.push(storeTotal);
-  }
-};
-
-Store.totalLaborSum = function(){
-  Store.totalDailyLabor = 0;
-  for (var i in Store.allStoresHourlyLabor){
-    Store.totalDailyLabor += Store.allStoresHourlyLabor[i];
-  }
-};
-
-Store.totalsLaborRender = function() {
-  var trEl = document.createElement('tr');
-  //
-  // var thEl = document.createElement('th');
-  // thEl.textContent = 'All Stores Totals';
-  // trEl.appendChild(thEl);
-  Store.newElement('th', 'All Stores Totals', trEl);
-
-  for (var i in Store.hours) {
-    // thEl = document.createElement('th');
-    // thEl.textContent = Store.allStoresHourlyLabor[i];
-    // trEl.appendChild(thEl);
-    Store.newElement('th', Store.allStoresHourlyLabor[i], trEl);
-  }
-
-  // thEl = document.createElement('th');
-  // thEl.textContent = Store.totalDailyLabor;
-  // trEl.appendChild(thEl);
-  Store.newElement('th', Store.totalDailyLabor, trEl);
-
-  Store.laborTable.appendChild(trEl);
-};
-
-Store.laborFooterFunctions = function() {
-  Store.laborColumnSum();
-  Store.totalLaborSum();
-  Store.totalsLaborRender();
-};
-
-Store.laborFooterFunctions();
