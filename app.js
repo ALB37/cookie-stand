@@ -51,10 +51,16 @@ Store.prototype.hourlyTrans = function(){
   }
 };
 
-// Calculate hourly labor requirements based on the assumption that for every 20 cookies sold, one employee is needed
+// Calculate hourly labor requirements based on the assumption that for every 20 cookies sold, one employee is needed, and a minimum of two employees must always be on staff.
 Store.prototype.hourlyLaborReq = function() {
   for (var i = 0; i < this.hourlySales.length; i++){
     this.hourlyEmployees.push(Math.ceil(this.hourlySales[i] / 20));
+    if (this.hourlyEmployees[i] === 0){
+      this.hourlyEmployees[i] += 2;
+    }
+    if (this.hourlyEmployees[i] === 1){
+      this.hourlyEmployees[i]++;
+    }
   }
 };
 
