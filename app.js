@@ -3,12 +3,12 @@
 
 // // Global Variables // //
 
-var hours = ['6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm'];
-var allStores = [];
-var storeTable = document.getElementById('store');
-var newCookieStore = document.getElementById('new-store');
-var allStoreTotals = [];
-var totalTurtle = 0;
+Store.hours = ['6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm'];
+Store.all = [];
+Store.salesTable = document.getElementById('store');
+Store.newCookieStore = document.getElementById('new-store');
+Store.allStoreTotals = [];
+Store.totalTurtle = 0;
 
 
 // Store Object Constructor //
@@ -20,7 +20,7 @@ function Store(name, minCust, maxCust, avgCookieSales){
   this.avgCookieSales = avgCookieSales;
   this.dailySales = 0;
   this.hourlySales = [];
-  allStores.push(this);
+  Store.all.push(this);
 }
 
 // Store Object Prototypes //
@@ -32,7 +32,7 @@ Store.prototype.hourlyCusts = function(){
 
 // Calculate hourly transactions
 Store.prototype.hourlyTrans = function(){
-  for (var i = 0; i < hours.length; i++){
+  for (var i = 0; i < Store.hours.length; i++){
     var numCust = this.hourlyCusts();
     this.hourlySales.push(Math.round(numCust * this.avgCookieSales));
   }
@@ -63,7 +63,7 @@ Store.prototype.render = function(){
   thEl.textContent = this.dailySales;
   trEl.appendChild(thEl);
 
-  storeTable.appendChild(trEl);
+  Store.salesTable.appendChild(trEl);
 };
 
 // Instantiate Store objects
@@ -77,16 +77,16 @@ new Store('Alki', 2, 16, 4.6);
 // // Functions: // //
 
 // Render table header row
-function makeHeaderRow() {
+Store.makeHeaderRow = function() {
   var trEl = document.createElement('tr');
 
   var thEl = document.createElement('th');
   thEl.textContent = 'Store';
   trEl.appendChild(thEl);
 
-  for (var i in hours) {
+  for (var i in Store.hours) {
     thEl = document.createElement('th');
-    thEl.textContent = hours[i];
+    thEl.textContent = Store.hours[i];
     trEl.appendChild(thEl);
   }
 
@@ -94,39 +94,39 @@ function makeHeaderRow() {
   thEl.textContent = 'Daily Total';
   trEl.appendChild(thEl);
 
-  storeTable.appendChild(trEl);
-}
+  Store.salesTable.appendChild(trEl);
+};
 
 // Generate and render the data for each Store object
-function dataRowCall(){
-  for (var i in allStores){
-    allStores[i].hourlyTrans();
-    allStores[i].dailyTrans();
-    allStores[i].render();
+Store.dataRowCall = function(){
+  for (var i in Store.all){
+    Store.all[i].hourlyTrans();
+    Store.all[i].dailyTrans();
+    Store.all[i].render();
   }
-}
+};
 
 // Calculate the total sales for all location hour by hour
-function columnSum(){
-  for (var i = 0; i < hours.length; i++){
+Store.columnSum = function(){
+  for (var i = 0; i < Store.hours.length; i++){
     var storeTotal = 0;
-    for (var j = 0; j < allStores.length; j++){
-      storeTotal += allStores[j].hourlySales[i];
+    for (var j = 0; j < Store.all.length; j++){
+      storeTotal += Store.all[j].hourlySales[i];
     }
-    allStoreTotals.push(storeTotal);
+    Store.allStoreTotals.push(storeTotal);
   }
-}
+};
 
 // Calculate total daily sum of all locations
-function totalTotalSum(){
-  totalTurtle = 0;
-  for (var i in allStoreTotals){
-    totalTurtle += allStoreTotals[i];
+Store.totalTotalSum = function(){
+  Store.totalTurtle = 0;
+  for (var i in Store.allStoreTotals){
+    Store.totalTurtle += Store.allStoreTotals[i];
   }
-}
+};
 
 // Render table footer row
-function makeTotalsRender() {
+Store.makeTotalsRender = function() {
   var trEl = document.createElement('tr');
   trEl.setAttribute('id', 'footer');
 
@@ -134,28 +134,28 @@ function makeTotalsRender() {
   thEl.textContent = 'All Stores Totals';
   trEl.appendChild(thEl);
 
-  for (var i in hours) {
+  for (var i in Store.hours) {
     thEl = document.createElement('th');
-    thEl.textContent = allStoreTotals[i];
+    thEl.textContent = Store.allStoreTotals[i];
     trEl.appendChild(thEl);
   }
 
   thEl = document.createElement('th');
-  thEl.textContent = totalTurtle;
+  thEl.textContent = Store.totalTurtle;
   trEl.appendChild(thEl);
 
-  storeTable.appendChild(trEl);
-}
+  Store.salesTable.appendChild(trEl);
+};
 
 // Call all three functions related to calculating and rendering the final row simultaneosly
-function callFooterFunctions() {
-  columnSum();
-  totalTotalSum();
-  makeTotalsRender();
-}
+Store.callFooterFunctions = function() {
+  Store.columnSum();
+  Store.totalTotalSum();
+  Store.makeTotalsRender();
+};
 
 // Re-renders all of the Store data keeping old data unchanged and inserting new data related to the user input
-function renderAllTable(){
+Store.renderAllTable = function(){
   // Declare text-box data as variables
   var newStoreName = event.target.getStoreName.value;
   var newMinCusts = event.target.getMinCusts.value;
@@ -164,17 +164,17 @@ function renderAllTable(){
   // Variable to prevent duplicate Store object when editing existing data
   var counter = 0;
   // Checks the name entered in text-box against existing Store objects
-  for (var i = 0; i < allStores.length; i++){
-    if (newStoreName === allStores[i].name){
+  for (var i = 0; i < Store.all.length; i++){
+    if (newStoreName === Store.all[i].name){
       // Edit data of existing Store object
-      allStores[i].minCust = parseInt(newMinCusts);
-      allStores[i].maxCust = parseInt(newMaxCusts);
-      allStores[i].avgCookieSales = parseInt(newAvgSales);
-      allStores[i].dailySales = 0;
-      allStores[i].hourlySales = [];
+      Store.all[i].minCust = parseInt(newMinCusts);
+      Store.all[i].maxCust = parseInt(newMaxCusts);
+      Store.all[i].avgCookieSales = parseInt(newAvgSales);
+      Store.all[i].dailySales = 0;
+      Store.all[i].hourlySales = [];
       // Call functions to calculate new data based on new numbers entered
-      allStores[i].hourlyTrans();
-      allStores[i].dailyTrans();
+      Store.all[i].hourlyTrans();
+      Store.all[i].dailyTrans();
       // Skip next if statement if this conditional is triggered
       counter++;
     }
@@ -183,42 +183,42 @@ function renderAllTable(){
   if (counter === 0){
     new Store(newStoreName, parseInt(newMinCusts), parseInt(newMaxCusts), parseInt(newAvgSales));
     // Calculate data only for the newest Store object (i.e. the one just instantiated)
-    allStores[allStores.length - 1].hourlyTrans();
-    allStores[allStores.length - 1].dailyTrans();
+    Store.all[Store.all.length - 1].hourlyTrans();
+    Store.all[Store.all.length - 1].dailyTrans();
   }
   // Render the table data for the Store objects
-  for (var j = 0; j < allStores.length; j++){
-    allStores[j].render();
+  for (var j = 0; j < Store.all.length; j++){
+    Store.all[j].render();
   }
-}
+};
 
 // Function for handling the event of pressing the submit button
-function handleNewStoreSubmit(event){
+Store.handleNewStoreSubmit = function(event){
   // Prevent the page from reloading
   event.preventDefault();
   // Reset the sum of all hourly total sales (a Store will be added or changed, so this value will change)
-  allStoreTotals = [];
+  Store.allStoreTotals = [];
   // Input validation
   if (!event.target.getStoreName.value || !event.target.getMinCusts.value || !event.target.getMaxCusts.value || !event.target.getAvgSales.value ) {
     return alert('Please fill in all fields!');
   }
   // Wipe the table data clean
-  storeTable.innerHTML = '';
+  Store.salesTable.innerHTML = '';
 
   // Re-render the table (unchanged data will remain in memory)
-  makeHeaderRow();
-  renderAllTable();
-  callFooterFunctions();
-}
+  Store.makeHeaderRow();
+  Store.renderAllTable();
+  Store.callFooterFunctions();
+};
 
 
 // // Execution // //
 
 // Creates event listener for submit button
-newCookieStore.addEventListener('submit', handleNewStoreSubmit);
+Store.newCookieStore.addEventListener('submit', Store.handleNewStoreSubmit);
 
-makeHeaderRow();
+Store.makeHeaderRow();
 
-dataRowCall();
+Store.dataRowCall();
 
-callFooterFunctions();
+Store.callFooterFunctions();
