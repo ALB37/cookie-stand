@@ -226,7 +226,7 @@ Store.renderAllTable = function(){
   var counter = 0;
   // Checks the name entered in text-box against existing Store objects
   for (var i = 0; i < Store.all.length; i++){
-    if (newStoreName === Store.all[i].name){
+    if (newStoreName.toLowerCase() === Store.all[i].name.toLowerCase()){
       // Edit data of existing Store object
       Store.all[i].minCust = parseInt(newMinCusts);
       Store.all[i].maxCust = parseInt(newMaxCusts);
@@ -265,13 +265,27 @@ Store.renderAllTable = function(){
 Store.handleNewStoreSubmit = function(event){
   // Prevent the page from reloading
   event.preventDefault();
+  // Declare text-box data as variables
+  var newStoreName = event.target.getStoreName.value;
+  var newMinCusts = event.target.getMinCusts.value;
+  var newMaxCusts = event.target.getMaxCusts.value;
+  var newAvgSales = event.target.getAvgSales.value;
   // Reset the sum of all hourly total sales/labor (a Store will be added or changed, so this value will change)
   Store.allStoreTotals = [];
   Store.allStoresHourlyLabor = [];
   // Input validation
-  if (!event.target.getStoreName.value || !event.target.getMinCusts.value || !event.target.getMaxCusts.value || !event.target.getAvgSales.value ) {
+  if (!newStoreName || !newMinCusts || !newMaxCusts || !newAvgSales ) {
     return alert('Please fill in all fields!');
   }
+
+  if (newMinCusts < 0 || newMaxCusts < 0 || newAvgSales < 0){
+    return alert('Please supply positive numbers only!');
+  }
+
+  if (newMinCusts > newMaxCusts){
+    return alert('Minimum number of customers must be less than or equal to maximum number of customers!');
+  }
+
   // Wipe the table data clean
   Store.salesTable.innerHTML = '';
   Store.laborTable.innerHTML = '';
