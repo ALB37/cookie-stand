@@ -9,7 +9,7 @@ Store.salesTable = document.getElementById('store');
 Store.newCookieStore = document.getElementById('new-store');
 Store.allStoreTotals = [];
 Store.totalTurtle = 0;
-Store.allStoreEmployees = [];
+Store.allStoresHourlyLabor = [];
 Store.totalDailyLabor = 0;
 
 
@@ -60,21 +60,11 @@ Store.prototype.dailyTrans = function(){
 // Render store data into table
 Store.prototype.render = function(){
   var trEl = document.createElement('tr');
-
-  var thEl = document.createElement('th');
-  thEl.textContent = this.name;
-  trEl.appendChild(thEl);
-
+  Store.newElement('th', this.name, trEl);
   for (var i in this.hourlySales) {
-    var tdEl = document.createElement('td');
-    tdEl.textContent = this.hourlySales[i] + ' cookies';
-    trEl.appendChild(tdEl);
+    Store.newElement('td', this.hourlySales[i] + ' cookies', trEl);
   }
-
-  thEl = document.createElement('th');
-  thEl.textContent = this.dailySales;
-  trEl.appendChild(thEl);
-
+  Store.newElement('th', this.dailySales, trEl);
   Store.salesTable.appendChild(trEl);
 };
 
@@ -88,24 +78,21 @@ new Store('Alki', 2, 16, 4.6);
 
 // // Functions: // //
 
+
+Store.newElement = function(type, content, parent) {
+  var newEl = document.createElement(type);
+  newEl.textContent = content;
+  parent.appendChild(newEl);
+};
+
 // Render table header row
 Store.makeHeaderRow = function() {
   var trEl = document.createElement('tr');
-
-  var thEl = document.createElement('th');
-  thEl.textContent = 'Store';
-  trEl.appendChild(thEl);
-
+  Store.newElement('th', 'Store', trEl);
   for (var i in Store.hours) {
-    thEl = document.createElement('th');
-    thEl.textContent = Store.hours[i];
-    trEl.appendChild(thEl);
+    Store.newElement('th', Store.hours[i], trEl);
   }
-
-  thEl = document.createElement('th');
-  thEl.textContent = 'Daily Total';
-  trEl.appendChild(thEl);
-
+  Store.newElement('th', 'Daily Total', trEl);
   Store.salesTable.appendChild(trEl);
 };
 
@@ -140,22 +127,11 @@ Store.totalTotalSum = function(){
 // Render table footer row
 Store.makeTotalsRender = function() {
   var trEl = document.createElement('tr');
-  trEl.setAttribute('id', 'footer');
-
-  var thEl = document.createElement('th');
-  thEl.textContent = 'All Stores Totals';
-  trEl.appendChild(thEl);
-
+  Store.newElement('th', 'All Stores Totals', trEl);
   for (var i in Store.hours) {
-    thEl = document.createElement('th');
-    thEl.textContent = Store.allStoreTotals[i];
-    trEl.appendChild(thEl);
+    Store.newElement('th', Store.allStoreTotals[i], trEl);
   }
-
-  thEl = document.createElement('th');
-  thEl.textContent = Store.totalTurtle;
-  trEl.appendChild(thEl);
-
+  Store.newElement('th', Store.totalTurtle, trEl);
   Store.salesTable.appendChild(trEl);
 };
 
@@ -182,6 +158,7 @@ Store.renderAllTable = function(){
       Store.all[i].minCust = parseInt(newMinCusts);
       Store.all[i].maxCust = parseInt(newMaxCusts);
       Store.all[i].avgCookieSales = parseInt(newAvgSales);
+      // Reset data to be re-calculated
       Store.all[i].dailySales = 0;
       Store.all[i].hourlySales = [];
       Store.all[i].dailyEmployees = 0;
@@ -215,9 +192,9 @@ Store.renderAllTable = function(){
 Store.handleNewStoreSubmit = function(event){
   // Prevent the page from reloading
   event.preventDefault();
-  // Reset the sum of all hourly total sales (a Store will be added or changed, so this value will change)
+  // Reset the sum of all hourly total sales/labor (a Store will be added or changed, so this value will change)
   Store.allStoreTotals = [];
-  Store.allStoreEmployees = [];
+  Store.allStoresHourlyLabor = [];
   // Input validation
   if (!event.target.getStoreName.value || !event.target.getMinCusts.value || !event.target.getMaxCusts.value || !event.target.getAvgSales.value ) {
     return alert('Please fill in all fields!');
@@ -252,19 +229,22 @@ Store.laborTable = document.getElementById('staff');
 Store.laborHeaderRow = function() {
   var trEl = document.createElement('tr');
 
-  var thEl = document.createElement('th');
-  thEl.textContent = 'Store';
-  trEl.appendChild(thEl);
+  // var thEl = document.createElement('th');
+  // thEl.textContent = 'Store';
+  // trEl.appendChild(thEl);
+  Store.newElement('th', 'Store', trEl);
 
   for (var i in Store.hours) {
-    thEl = document.createElement('th');
-    thEl.textContent = Store.hours[i];
-    trEl.appendChild(thEl);
+    // thEl = document.createElement('th');
+    // thEl.textContent = Store.hours[i];
+    // trEl.appendChild(thEl);
+    Store.newElement('th', Store.hours[i], trEl);
   }
 
-  thEl = document.createElement('th');
-  thEl.textContent = 'Total Employee Hours';
-  trEl.appendChild(thEl);
+  // thEl = document.createElement('th');
+  // thEl.textContent = 'Total Employee Hours';
+  // trEl.appendChild(thEl);
+  Store.newElement('th', 'Total Employee Hours', trEl);
 
   Store.laborTable.appendChild(trEl);
 };
@@ -274,19 +254,22 @@ Store.laborHeaderRow();
 Store.prototype.laborRender = function(){
   var trEl = document.createElement('tr');
 
-  var thEl = document.createElement('th');
-  thEl.textContent = this.name;
-  trEl.appendChild(thEl);
+  // var thEl = document.createElement('th');
+  // thEl.textContent = this.name;
+  // trEl.appendChild(thEl);
+  Store.newElement('th', this.name, trEl);
 
   for (var i in this.hourlySales) {
-    var tdEl = document.createElement('td');
-    tdEl.textContent = this.hourlyEmployees[i];
-    trEl.appendChild(tdEl);
+    // var tdEl = document.createElement('td');
+    // tdEl.textContent = this.hourlyEmployees[i];
+    // trEl.appendChild(tdEl);
+    Store.newElement('td', this.hourlyEmployees[i], trEl);
   }
 
-  thEl = document.createElement('th');
-  thEl.textContent = this.dailyEmployees;
-  trEl.appendChild(thEl);
+  // thEl = document.createElement('th');
+  // thEl.textContent = this.dailyEmployees;
+  // trEl.appendChild(thEl);
+  Store.newElement('th', this.dailyEmployees, trEl);
 
   Store.laborTable.appendChild(trEl);
 };
@@ -313,34 +296,36 @@ Store.laborColumnSum = function(){
     for (var j = 0; j < Store.all.length; j++){
       storeTotal += Store.all[j].hourlyEmployees[i];
     }
-    Store.allStoreEmployees.push(storeTotal);
+    Store.allStoresHourlyLabor.push(storeTotal);
   }
 };
 
 Store.totalLaborSum = function(){
   Store.totalDailyLabor = 0;
-  for (var i in Store.allStoreEmployees){
-    Store.totalDailyLabor += Store.allStoreEmployees[i];
+  for (var i in Store.allStoresHourlyLabor){
+    Store.totalDailyLabor += Store.allStoresHourlyLabor[i];
   }
 };
 
 Store.totalsLaborRender = function() {
   var trEl = document.createElement('tr');
-  trEl.setAttribute('id', 'footer');
-
-  var thEl = document.createElement('th');
-  thEl.textContent = 'All Stores Totals';
-  trEl.appendChild(thEl);
+  //
+  // var thEl = document.createElement('th');
+  // thEl.textContent = 'All Stores Totals';
+  // trEl.appendChild(thEl);
+  Store.newElement('th', 'All Stores Totals', trEl);
 
   for (var i in Store.hours) {
-    thEl = document.createElement('th');
-    thEl.textContent = Store.allStoreEmployees[i];
-    trEl.appendChild(thEl);
+    // thEl = document.createElement('th');
+    // thEl.textContent = Store.allStoresHourlyLabor[i];
+    // trEl.appendChild(thEl);
+    Store.newElement('th', Store.allStoresHourlyLabor[i], trEl);
   }
 
-  thEl = document.createElement('th');
-  thEl.textContent = Store.totalDailyLabor;
-  trEl.appendChild(thEl);
+  // thEl = document.createElement('th');
+  // thEl.textContent = Store.totalDailyLabor;
+  // trEl.appendChild(thEl);
+  Store.newElement('th', Store.totalDailyLabor, trEl);
 
   Store.laborTable.appendChild(trEl);
 };
